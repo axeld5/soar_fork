@@ -1,0 +1,8 @@
+portalocker
+scipy
+tenacity
+matplotlib
+openai
+seaborn
+sentence-transformers
+einops
