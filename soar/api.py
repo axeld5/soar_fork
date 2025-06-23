@@ -107,7 +107,7 @@ def terminate_sglang_serv(server_process):
     terminate_process(server_process)
 
 class LLM_serv:
-    def __init__(self,model_path, model_len=30000, seed=0, n_gpu=1, temperature=1., max_timeout=60*60*3, min_p = 0.1, max_workers = 64,gpu_mem=0.9,fp8=False,repetition_penalty=0,top_p=1.,top_k=-1,max_running_requests=0,schedule_conservativeness=-1,enable_thinking=False,max_tokens=-1):
+    def __init__(self,model_path, model_len=30000, seed=0, n_gpu=1, temperature=1., max_timeout=60*60*3, min_p = 0.05, max_workers = 64,gpu_mem=0.9,fp8=False,repetition_penalty=0,top_p=1.,top_k=-1,max_running_requests=0,schedule_conservativeness=-1,enable_thinking=False,max_tokens=-1):
         self.model_path = model_path
         self.model_len = model_len
         self.seed = seed

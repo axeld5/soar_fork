@@ -1,6 +1,8 @@
 import numpy as np
 from soar.grid_formatting import grid_formatting
 import copy
+from soar.llm_utils import get_dic_only_correct
+from soar.preprocess import get_dataset
 
 #TODO: clean unused prompts and functions
 # =================  prompt preprocessing  =================
@@ -177,7 +179,7 @@ def get_additional_info_prompt(alt_colors=False,grid_shape="ascii", prompt_color
 def get_repair_prompt( task2solve: dict,
                         list_previous_response: list[dict],
                         prompt_solver: str,
-                        grid_display_mode="ascii",
+                        grid_display_mode="numpy",
                         alt_colors = True,
                         prompt_colors = True,
                         max_example: int = -1,
@@ -301,6 +303,16 @@ def format_repair_one_previous_response(previous_response: dict[str],idx=0,grid_
             list_incorrect=list_incorrect[:-1].strip()
     response_formated += f"\nThe previous code give incorrect output for: {list_incorrect}. Now, you need to fix the code to produce correct output for all inputs."
     return response_formated
+
+
+def format_fewshot_examples(dic_solution,base_path):
+    train_data, _, _ = get_dataset(data_path=base_path)
+    data_correct = get_dic_only_correct(dic_solution)
+    list_k_fewshot = list(data_correct.keys())
+    np.random.shuffle(list_k_fewshot)
+    list_solution = ["```python\n" + np.random.choice(data_correct[key])["code"] + "\n```" for key in list_k_fewshot]
+    list_fewshot_examples = get_list_fewshot_example([train_data[i] for i in list_k_fewshot], list_solution)
+    return list_k_fewshot,list_fewshot_examples
 
 
 system_prompt="""You are an advanced AI assistant specialized in solving Abstract Reasoning Corpus (ARC-AGI) tasks. Your primary functions are:

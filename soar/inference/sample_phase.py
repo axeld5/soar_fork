@@ -13,13 +13,15 @@ from soar.llm_utils import (
     format_all_generation, 
     merge_results, 
     get_dic_task_solved,
-    get_dic_only_correct
+    get_dic_only_correct,
+    rm_untested_task
 )
 from soar.prompt import (
     get_solver_prompt, 
     get_list_fewshot_example, 
     prompt_wo_fewshot_v1_, 
-    prompt_fewshot_v1
+    prompt_fewshot_v1,
+    format_fewshot_examples
 )
 from soar.api import LLM_serv
 from soar.sandbox.execute_code_less_safe import check_solutions
@@ -146,7 +148,7 @@ def save_results(args, dict_response, data2test, dataset_name, dic_task_already_
     # execute code and check solutions
     dict_response = check_solutions(dict_response, data2test, keep_only_correct_results=False)
     dict_response = rm_untested_task(dict_response)
-    dict_results = get_number_of_solved_tasks(dict_response, n_best_codes=3)
+    dict_results = get_number_of_solved_tasks(dict_response, n_best_codes=2)
     
     # save results to pkl file
     results2save = {"dict_response": dict_response, 'result': dict_results}
@@ -164,15 +166,6 @@ def save_results(args, dict_response, data2test, dataset_name, dic_task_already_
         print("task solved: ",len([k for k,v in dic_task_already_solved.items() if v>0])," total task:",len(dic_task_already_solved))
     return dic_task_already_solved
 
-def rm_untested_task(dic_res):
-    """remove task that are not tested (should be useless rm ?)"""
-    dic_res_rm = {}
-    for k,v in dic_res.items():
-        dic_res_rm[k]=[]
-        for resp in v:
-            if "correct_train_input" in resp:
-                dic_res_rm[k].append(resp)  
-    return dic_res_rm
 
 def get_dic_task_solved(dic_res,task_id=None,val=False):
     """
@@ -200,16 +193,6 @@ def load_fewshot(args):
         data_fewshot = merge_results(pickle.load(f))
     list_k_fewshot,list_fewshot_examples = format_fewshot_examples(data_fewshot,args)
     return list_k_fewshot,list_fewshot_examples
-
-def format_fewshot_examples(dic_solution,args):
-    train_data, _, _ = get_dataset(data_path=args.base_path)
-    data_correct = get_dic_only_correct(dic_solution)
-    list_k_fewshot = list(data_correct.keys())
-    np.random.shuffle(list_k_fewshot)
-    list_solution = ["```python\n"+data_correct[key][0]["code"]+"\n```" for key in list_k_fewshot]
-    list_fewshot_examples = get_list_fewshot_example([train_data[i] for i in list_k_fewshot], list_solution)
-    return list_k_fewshot,list_fewshot_examples
-
 
 
 def run_evaluation(args, model, data2test, dataset_name):
@@ -306,7 +289,7 @@ def run_evaluation(args, model, data2test, dataset_name):
         dict_response = rm_untested_task(dict_response)
 
         if dataset_name == "train" and args.path_fewshot != "":
-            list_k_fs,list_fs_examples = format_fewshot_examples(dict_response,args)
+            list_k_fs,list_fs_examples = format_fewshot_examples(dict_response,args.base_path)
             for k_fs, fs_example in zip(list_k_fs, list_fs_examples):
                 if k_fs not in list_k_fewshot:
                     list_k_fewshot.append(k_fs)

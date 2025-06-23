@@ -54,4 +54,23 @@ def get_dataset(data_path="/home/flowers/work/arc/aces_arc/",arc_2=False):
     return train_data, val_data, test_data
 
 
+def convert_to_list(arrays):
+    """convert a array of array of array of int64 to a list of square list of int """
+    result = []
+    for array in arrays:
+        converted_array = []
+        for sub_array in array:
+            converted_array.append(sub_array.astype(int).tolist())
+        result.append(converted_array)
+    return result
 
+def reformat_solutions_parquet(df):
+    """Reformat solutions from a DataFrame to a dictionary of task_id -> list of solutions."""
+    dict_solutions = {}
+    for task_id, group in df.groupby('task_id'):
+        dict_solutions[task_id] = group.to_dict(orient='records')
+    for task_id, solutions in dict_solutions.items():
+        for solution in solutions:
+            solution['predicted_train_output'] = convert_to_list(solution['predicted_train_output'])
+            solution['predicted_test_output'] = convert_to_list(solution['predicted_test_output'])
+    return dict_solutions

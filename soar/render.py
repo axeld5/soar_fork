@@ -360,3 +360,70 @@ def plot_prediction(prediction,code=None):
     if code != None:
         print("code generated:\n",code)
     
+
+    
+def plot_input_output_gt(input_output,max_examples=-1,save_path=None):
+    """
+    Plot input and output grids in a row for each input-output pair in the input_output list.
+    input_output: List of dictionaries with 'input' and 'output' keys containing 2D lists of integers.
+    max_examples: Integer determining the maximum number of examples to display.
+    """
+    num_rows = len(input_output)
+    if max_examples > 0:
+        num_rows = min(max_examples, num_rows)
+    num_cols = 3  # input output
+    fig, ax = plt.subplots(num_rows, num_cols, figsize=(3, 1*num_rows), dpi=200)  # Increased width for arrow space
+    
+    for x in range(num_rows):
+        for y in range(num_cols):
+            name = list(input_output[x].keys())[y]  # get input or output
+            if num_rows > 1 and num_cols > 1:
+                sub_plot = ax[x, y]
+            elif num_rows > 1:
+                sub_plot = ax[x]
+            else:
+                sub_plot = ax[y]
+            grid2show = input_output[x][name]
+            if isinstance(grid2show, list):
+                grid2show = np.array(grid2show)
+            grid2rgb = create_rgb_grid(grid2show)
+            sub_plot.imshow(grid2rgb)
+            sub_plot.set_title(name) if x == 0 else None
+            
+            # Remove x and y ticks
+            sub_plot.set_xticks([])
+            sub_plot.set_yticks([])
+        
+        # Add arrow between columns
+        if num_rows == 1:
+            ax[x].annotate('', xy=(1., 0.5), xytext=(0, 0.5),
+                                xycoords='axes fraction', textcoords=ax[1].transAxes,
+                                arrowprops=dict(arrowstyle='<-'), annotation_clip=False)
+        else: 
+            ax[x, 0].annotate('', xy=(1., 0.5), xytext=(0, 0.5),
+                                xycoords='axes fraction', textcoords=ax[x, 1].transAxes,
+                                arrowprops=dict(arrowstyle='<-'), annotation_clip=False)
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path)
+    plt.show()
+
+
+def show_train_test_gt(resp,task,print_=True,save_path=None):
+    list_out=[]
+    if print_:
+
+        print("----------------"*10)
+    format_show_train=[]
+    for idx_grid in range(len(task["train"])):
+        list_out.append(resp["predicted_train_output"][idx_grid])
+        format_show_train.append({"input":task["train"][idx_grid]["input"],"correct":task["train"][idx_grid]["output"],"predicted": resp["predicted_train_output"][idx_grid]})
+    # format_show=[]
+    for idx_grid in range(len(task["test"])):
+        list_out.append(resp["predicted_test_output"][idx_grid])
+        format_show_train.append({"input":task["test"][idx_grid]["input"],"correct":task["test"][idx_grid]["output"],"predicted": resp["predicted_test_output"][idx_grid]})
+    list_out=str(list_out)
+    if print_:
+
+        plot_input_output_gt(format_show_train,save_path=save_path)

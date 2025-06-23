@@ -3,7 +3,6 @@ import ast
 from openai import OpenAI
 import copy
 import pickle
-import portalocker
 import json
 import random
 from time import sleep
@@ -421,7 +420,7 @@ def get_dic_task_solved(dic_res,task_id=None,mode="train"):
 
 
 
-def get_number_of_solved_tasks(dict_response, n_best_codes=3):
+def get_number_of_solved_tasks(dict_response, n_best_codes=2):
     """
     Calculates the number of solved tasks based on different criteria.
 
@@ -464,7 +463,7 @@ def get_number_of_solved_tasks(dict_response, n_best_codes=3):
         "test_task_solved_with_all_train_correct": test_task_solved_with_all_train_correct # Number of tasks solved with all train input-output pairs correct and all test output correct.
     }
 
-def get_number_of_N_solved_tasks(dict_response, n_best_codes=3,N=-1):
+def get_number_of_N_solved_tasks(dict_response, n_best_codes=2,N=-1):
     """
     Calculates the number of solved tasks based on different criteria.
 
@@ -513,7 +512,7 @@ def get_number_of_N_solved_tasks(dict_response, n_best_codes=3,N=-1):
     }
 
 
-def get_info_solved_tasks(dict_response, n_best_codes=3):
+def get_info_solved_tasks(dict_response, n_best_codes=2):
     """
     Calculates the number of solved tasks based on different criteria.
 
@@ -892,8 +891,6 @@ def get_number_of_solved_tasks_bis(dict_response, n_best_codes=2,c=1000,mv=True,
 
     test_task_solved_with_all_train_correct: Number of tasks solved with all train input-output pairs correct and all test output correct.
     """
-    test_task_solved_real = 0
-    test_task_solved_real_kaggle = 0
     test_task_solved_real_kaggle_mv = 0
     test_task_solved_oracle = 0
     train_task_solved_oracle = 0
@@ -905,12 +902,7 @@ def get_number_of_solved_tasks_bis(dict_response, n_best_codes=2,c=1000,mv=True,
         n_responses = max(n_responses,len(task_responses))
         if N != -1: 
             task_responses = task_responses[:N]
-        sorted_responses = sorted(task_responses, key=lambda x: sum(x["correct_train_input"]), reverse=True)
-        best_responses = sorted_responses[:n_best_codes]
 
-        if any(all(response["correct_test_input"]) for response in best_responses):
-            test_task_solved_real += 1
-        test_task_solved_real_kaggle += define_correct_kaggle(best_responses)[0]
         try:
             if mv:
                 best_responses_mv=give_n_majority_vote_v2(task_responses, n_output=n_best_codes,c=c)
@@ -934,8 +926,6 @@ def get_number_of_solved_tasks_bis(dict_response, n_best_codes=2,c=1000,mv=True,
     dic_all_res={
         "n_tasks": len(dict_response),
         "n_responses":n_responses,
-        "test_task_solved_real": test_task_solved_real, # Number of tasks solved by taking at most n_best_codes with the most correct train input-outputs and checking if they solve test examples.
-        "test_task_solved_real_kaggle": test_task_solved_real_kaggle,
         "test_task_solved_real_kaggle_mv": test_task_solved_real_kaggle_mv,
         "test_task_solved_oracle": test_task_solved_oracle, # Number of tasks solved, only checking test input-output pairs.
         "train_task_solved_oracle": train_task_solved_oracle, # Number of tasks solved, only checking train input-output pairs.
@@ -1021,3 +1011,14 @@ def give_n_majority_vote(task_responses, n_output=2,c=1000):
                 
     return list_reponse
 
+
+
+def rm_untested_task(dic_res):
+    """remove task that are not tested (should be useless rm ?)"""
+    dic_res_rm = {}
+    for k,v in dic_res.items():
+        dic_res_rm[k]=[]
+        for resp in v:
+            if "correct_train_input" in resp:
+                dic_res_rm[k].append(resp)  
+    return dic_res_rm
