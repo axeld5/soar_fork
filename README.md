@@ -8,6 +8,21 @@ Large Language Models (LLMs) have become incredibly powerful, but they often hit
 
 We introduce a framework called **SOAR (Self-improving Operators for Automated program Refinements)** that does just that. By creating a "virtuous cycle" of evolutionary search and learning, SOAR enables AI models to bootstrap their own capabilities and solve problems previously beyond their reach. we tested SOAR on the Abstraction and Reasoning Corpus (ARC-AGI-1), a notoriously difficult benchmark designed to challenge an AI's core reasoning abilities. We show that using SOAR with only open weight LLM, we can significantly outperforming much larger closed source LLMs.
 
+
+We have released a dataset containing 5 million ARC solutions. For solutions that successfully solve an original ARC task, we deduplicate entries by their code to ensure uniqueness. For solutions that correspond to new synthetic tasks generated via hindsight relabeling, we deduplicate based on their output results. This approach ensures a diverse and high-quality dataset for further research and development.
+
+- [soar_arc_train_5M](https://huggingface.co/julien31/soar_arc_train_5M)
+
+
+We have also released all five of our SOAR models on Hugging Face:
+
+- [Soar-qwen-7b](https://huggingface.co/julien31/Soar-qwen-7b)
+- [Soar-qwen-14b](https://huggingface.co/julien31/Soar-qwen-14b)
+- [Soar-qwen-32b](https://huggingface.co/julien31/Soar-qwen-32b)
+- [Soar-qwen-72b](https://huggingface.co/julien31/Soar-qwen-72b)
+- [Soar-mistral-123b](https://huggingface.co/julien31/Soar-mistral-123b)
+
+
 ## SOAR framework
 ![soar](docs/image/soar_fig.png)
 
