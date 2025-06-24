@@ -11,7 +11,7 @@ We introduce a framework called **SOAR (Self-improving Operators for Automated p
 
 We have released a dataset containing 5 million ARC solutions. For solutions that successfully solve an original ARC task, we deduplicate entries by their code to ensure uniqueness. For solutions that correspond to new synthetic tasks generated via hindsight relabeling, we deduplicate based on their output results. This approach ensures a diverse and high-quality dataset for further research and development.
 
-- [soar_arc_train_5M](https://huggingface.co/julien31/soar_arc_train_5M)
+- [soar_arc_train_5M](https://huggingface.co/datasets/julien31/soar_arc_train_5M)
 
 
 We have also released all five of our SOAR models on Hugging Face:
@@ -70,3 +70,5 @@ pip install -r requirements.txt
 
 ## Run SOAR
 To run SOAR, please refer to execution instructions located in the experience folder. 
+
+For simple instructions on running sampling and refinement with SOAR, as well as exploring the dataset, please see the Jupyter notebooks provided in the `notebook` folder. These notebooks walk through the basic SOAR step, including how to generate candidate solutions, perform refinement, and analyze results. This hands-on guide will help you get started quickly and understand each step of the SOAR process.
