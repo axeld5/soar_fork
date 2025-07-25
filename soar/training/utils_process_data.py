@@ -3,8 +3,8 @@ import json
 import tqdm as tqdm
 import copy
 from soar.llm_utils import merge_results
-from soar.prompt import  get_repair_prompt, prompt_claude_repair_sol_v1
-from soar.prompt import get_solver_prompt,prompt_claude_cot_fewshot_v1,prompt_claude_cot_wo_fewshot_v1_, prompt_claude_wo_cot_wo_fewshot_v1_
+from soar.prompt import  get_repair_prompt, prompt_repair_cot_v1
+from soar.prompt import get_solver_prompt,prompt_cot_fewshot_v1,prompt_cot_v1, prompt_wo_fewshot_v1_
 import pickle
 
 def select_example(data, n_sample,force_n_sample=False,n_sursample_max=1,seed=0):
@@ -19,14 +19,15 @@ def select_example(data, n_sample,force_n_sample=False,n_sursample_max=1,seed=0)
         return datapoints    
 
 def get_dataset_HER(path,train_val_data,n_sample=None,use_fewshot_example=False,use_cot=False,show_output_test=True, shuffle=True):
-    """need to clean this code (merge step 1 and 2) """
+    """need to clean this code (merge step 1 and 2) 
+        rm use_fewshot_example
+    """
     print("process data step 1")
-    prompt_solver=prompt_claude_cot_fewshot_v1
-    if not use_fewshot_example:
-        if use_cot:
-            prompt_solver = prompt_claude_cot_wo_fewshot_v1_
-        else:
-            prompt_solver=prompt_claude_wo_cot_wo_fewshot_v1_
+    
+    if use_cot:
+        prompt_solver = prompt_cot_v1
+    else:
+        prompt_solver=prompt_wo_fewshot_v1_
     if ".json" in path:
         with open(path, 'r') as f:   
             data = json.load(f)
@@ -138,7 +139,7 @@ def get_dataset_HER(path,train_val_data,n_sample=None,use_fewshot_example=False,
 def get_her_repair_sft(path,train_val_data,n_sample=None, shuffle=False):
     """process data for HER repair sft"""
     dataset=[]
-    prompt_solve = prompt_claude_repair_sol_v1
+    prompt_solve = prompt_repair_cot_v1
     if ".json" in path:
         with open(path, 'r') as f:   
             data = json.load(f)
