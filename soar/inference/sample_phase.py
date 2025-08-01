@@ -145,9 +145,7 @@ def save_results(args, dict_response, data2test, dataset_name, dic_task_already_
     path_pkl_save = get_path_pickle(args,dataset_name)
     gc.collect()
     
-    # execute code and check solutions
-    dict_response = check_solutions(dict_response, data2test, keep_only_correct_results=False)
-    dict_response = rm_untested_task(dict_response)
+    # check solutions
     dict_results = get_number_of_solved_tasks(dict_response, n_best_codes=2)
     
     # save results to pkl file
@@ -191,7 +189,7 @@ def get_dic_task_solved(dic_res,task_id=None,val=False):
 def load_fewshot(args):
     with open(args.path_fewshot, "rb") as f:
         data_fewshot = merge_results(pickle.load(f))
-    list_k_fewshot,list_fewshot_examples = format_fewshot_examples(data_fewshot,args)
+    list_k_fewshot,list_fewshot_examples = format_fewshot_examples(data_fewshot,args.base_path)
     return list_k_fewshot,list_fewshot_examples
 
 
@@ -225,6 +223,7 @@ def run_evaluation(args, model, data2test, dataset_name):
     solution2gen = args.k - max_len
     if solution2gen <= 0:
         print(f"Already generated {max_len} solutions for {dataset_name}")
+        model.terminate()
         exit()
 
     k = min(args.bs_inference,solution2gen)
@@ -286,6 +285,7 @@ def run_evaluation(args, model, data2test, dataset_name):
         # format results
         dict_response = format_all_generation(results, list_task_id_to_solve, use_vllm_generate=False)
         # remove tasks that are not tested
+        dict_response = check_solutions(dict_response, data2test, keep_only_correct_results=False)
         dict_response = rm_untested_task(dict_response)
 
         if dataset_name == "train" and args.path_fewshot != "":
