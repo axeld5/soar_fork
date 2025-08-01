@@ -45,7 +45,7 @@ fi
 
 ### sampling intial solution
 
-To sample the 3k initial solution (here -k 2 for demo, change that to 3000 for full run) run this:
+To sample the 3k initial solution (you can change -k 3000 to the number of sample you want) run this:
 
 ```bash
 conda deactivate
@@ -68,7 +68,14 @@ python $soar_path/soar/inference/sample_phase.py \
 --path_fewshot $soar_path/soar/inference/train_solutions.pkl
 ```
 
-Note: you can increase n_gpu to the number of gpu you have to make things faster and to use LLMs that don't fit on one GPUs (used 1 GPUs for 7b, 2 GPUs for 14b and 4 GPUs for LLMs with more than 14b params)
+**Note:**
+
+- **GPU Configuration**: You can increase the `n_gpu` parameter to match the number of GPUs available. This will speed up the process and allow you to use larger language models (LLMs) that require multiple GPUs. For example:
+    - I Used 1 GPU for models up to 7B parameters.
+    - I Used 2 GPUs for models up to 14B parameters.
+    - I Used 4 GPUs for models larger than 14B parameters.
+
+- **Resuming After Interruption**: Each phase automatically saves its progress. If interrupted (e.g., due to a crash or manual cancellation), you can safely rerun the phase. It will reload the last saved results and continue from where it left off.
 
 Then do post-processing on those data (rm code with error, ...)
 
@@ -84,7 +91,7 @@ python $soar_path/soar/post_process/merge_filter.py \
 
 ### Refine initial solution
 
-Now we need to refine those initial solutions. To save time you can run the 5 seed on separate nodes (each seed is 600 refined codes)
+Now we need to refine those initial solutions. To save time, you can run the 5 seeds on separate nodes (each seed generates 600 refined codes). This approach allows parallel processing and speeds up the refinement phase.
 
 So execute this:
 ```bash
