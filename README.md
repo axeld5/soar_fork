@@ -72,3 +72,7 @@ pip install -r requirements.txt
 To run SOAR, please refer to execution instructions located in the experience folder. 
 
 For simple instructions on running sampling and refinement with SOAR, as well as exploring the dataset, please see the Jupyter notebooks provided in the `notebook` folder. These notebooks walk through the basic SOAR step, including how to generate candidate solutions, perform refinement, and analyze results. This hands-on guide will help you get started quickly and understand each step of the SOAR process.
+
+New details tuto in the `notebook` folder [Soar-mistral-123b](https://github.com/flowersteam/SOAR/tree/main/experience/tuto_expe.md)
+
+

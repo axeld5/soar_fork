@@ -265,3 +265,4 @@ except Exception as e:
     print("Error during REX run:")
     llm.terminate()
     raise e
+llm.terminate()
