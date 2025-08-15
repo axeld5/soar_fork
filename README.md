@@ -35,37 +35,50 @@ This process creates a powerful feedback loop: the fine-tuned model becomes bett
 
 ## info install
 
-### conda inference env
-```
-pip install --upgrade pip
+### UV inference env
+```bash
+# Install UV if you haven't already
+# curl -LsSf https://astral.sh/uv/install.sh | sh
 
 git clone https://github.com/flowersteam/SOAR
 cd SOAR
-conda create --name sglang47 \
-    python=3.11 \
-    -y
-conda activate sglang47
 
-pip install "sglang[all]>=0.4.7"
+# Create and activate virtual environment with Python 3.11
+uv venv --python 3.11 .venv-inference
+source .venv-inference/bin/activate  # On Windows: .venv-inference\Scripts\activate
 
-pip install -e .
-pip install -r requirements
-
+# Install the package with inference dependencies
+uv pip install -e ".[inference]"
 ```
 
-### conda train env
-```
-conda create --name unsloth_env \
-    python=3.11 \
-    pytorch-cuda=12.1 \
-    pytorch cudatoolkit xformers -c pytorch -c nvidia -c xformers \
-    -y
-conda activate unsloth_env
+### UV train env
+```bash
+# Install UV if you haven't already
+# curl -LsSf https://astral.sh/uv/install.sh | sh
 
-pip install unsloth
+git clone https://github.com/flowersteam/SOAR
 cd SOAR
-pip install -e .
-pip install -r requirements.txt
+
+# Create and activate virtual environment with Python 3.11
+uv venv --python 3.11 .venv-training
+source .venv-training/bin/activate  # On Windows: .venv-training\Scripts\activate
+
+# Install PyTorch with CUDA support first
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Install the package with training dependencies
+uv pip install -e ".[training]"
+```
+
+### Alternative: Using UV project management
+```bash
+# For inference work
+uv sync --extra inference
+uv run python your_inference_script.py
+
+# For training work  
+uv sync --extra training
+uv run python your_training_script.py
 ```
 
 ## Run SOAR

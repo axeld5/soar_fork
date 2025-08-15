@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SOAR"
+version = "0.1.0"
+description = "SOAR - Self-improving Operators for Automated program Refinements"
+authors = [
+    {name = "Julien Pourcel", email = "j.pourcel31830@gmail.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "portalocker",
+    "scipy",
+    "tenacity",
+    "matplotlib",
+    "openai",
+    "seaborn",
+    "sentence-transformers",
+    "einops",
+]
+
+[project.urls]
+Homepage = "https://github.com/flowersteam/SOAR"
+Repository = "https://github.com/flowersteam/SOAR"
+
+[project.optional-dependencies]
+# Inference environment dependencies
+inference = [
+    "sglang[all]>=0.4.7",
+]
+
+# Training environment dependencies  
+training = [
+    "torch",
+    "unsloth",
+]
+
+# Development dependencies
+dev = [
+    "jupyter",
+    "notebook",
+    "ipykernel",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["soar*"]
+
+[tool.uv]
+dev-dependencies = [
+    "jupyter>=1.0.0",
+    "notebook>=6.0.0",
+    "ipykernel>=6.0.0",
+]

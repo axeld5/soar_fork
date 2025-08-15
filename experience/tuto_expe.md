@@ -2,9 +2,21 @@
 
 ## install env
 
-First install the both conda (check readme for more details):
-- Inference env `sglang47` (you can upgrade to lateset SGLang version) 
-- Training env `unsloth_env`
+First install both UV environments (check README.md for detailed setup):
+- Inference env using `uv sync --extra inference` or manual `.venv-inference`
+- Training env using `uv sync --extra training` or manual `.venv-training`
+
+Quick setup:
+```bash
+# Install UV if you haven't already
+# curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# For inference work
+uv sync --extra inference
+
+# For training work  
+uv sync --extra training
+```
 
 
 Now fist let's set path variables
@@ -48,12 +60,16 @@ fi
 To sample the 3k initial solution (you can change -k 3000 to the number of sample you want) run this:
 
 ```bash
-conda deactivate
-conda activate sglang47
+# Activate inference environment (use one of these methods)
+# Method 1: Using UV project management (recommended)
+# uv run --extra inference python $soar_path/soar/inference/sample_phase.py \
+
+# Method 2: Using manual environment activation
+# source .venv-inference/bin/activate  # On Windows: .venv-inference\Scripts\activate
 
 # Sample phase (default fewshot example from train_solution.pkl but should be from train archive of previous generation)
-
-python $soar_path/soar/inference/sample_phase.py \
+# Using UV project management:
+uv run --extra inference python $soar_path/soar/inference/sample_phase.py \
 --base_path $soar_path/ \
 --path_model $path_model/ \
 --path_save_res $soar_path/save_results/$model_id_base/gen-$gen/solution \
@@ -81,7 +97,7 @@ Then do post-processing on those data (rm code with error, ...)
 
 ```bash
 # Process results sample phase
-python $soar_path/soar/post_process/merge_filter.py \
+uv run python $soar_path/soar/post_process/merge_filter.py \
 --base_path $soar_path/ \
 --path_folder $soar_path/save_results/$model_id_base/gen-$gen/ \
 --max_data 3000 \
@@ -96,7 +112,7 @@ Now we need to refine those initial solutions. To save time, you can run the 5 s
 So execute this:
 ```bash
 for seed in {0..4}; do
-    python $soar_path/soar/repair/rex_inference.py \
+    uv run --extra inference python $soar_path/soar/repair/rex_inference.py \
     --base_path $soar_path/ \
     --path_model $path_model/ \
     --path_archive $soar_path/save_results/$model_id_base/gen-$gen/solution/train_sol.pkl \
@@ -117,7 +133,7 @@ Or to get the results faster if you have multiple nodes, this:
 # run this for five different seed (0,1,2,3,4) in pa
 export seed=0
 
-python $soar_path/soar/repair/rex_inference.py \
+uv run --extra inference python $soar_path/soar/repair/rex_inference.py \
 --base_path $soar_path/ \
 --path_model $path_model/ \
 --path_archive $soar_path/save_results/$model_id_base/gen-$gen/solution/train_sol.pkl \
@@ -135,7 +151,7 @@ python $soar_path/soar/repair/rex_inference.py \
 Then do post-processing on those data (rm code with error, ...)
 
 ```bash
-python $soar_path/soar/post_process/merge_filter.py \
+uv run python $soar_path/soar/post_process/merge_filter.py \
 --base_path $soar_path/ \
 --path_folder $soar_path/save_results/$model_id_base/gen-$gen/ \
 --max_data 3000 \
@@ -145,7 +161,7 @@ python $soar_path/soar/post_process/merge_filter.py \
 
 Optional merge results and deduplication based on code in one results (for merging responses from all models in the paper)
 ```bash
-python $soar_path/soar/post_process/dedup.py \
+uv run python $soar_path/soar/post_process/dedup.py \
 --base_path $soar_path/ \
 --path_embed_model $path_embed_model/ \
 --path_save $soar_path/save_results/$model_id_base/gen-$gen/solution/train_sol_repair.pkl \
@@ -158,7 +174,7 @@ For sampling data to improving model on sampling intial solution:
 
 ```bash
 # sample training data for sample training (use train_sol_repair.pkl in path_folder_solution as data)
-python $soar_path/soar/post_process/process_sample_for_training.py \
+uv run python $soar_path/soar/post_process/process_sample_for_training.py \
 --path_model $path_model/ \
 --path_embed_model $path_embed_model/ \
 --split $split \
@@ -172,7 +188,7 @@ For sampling data to improving model on refinement
 
 ```bash
 # sample training data for sample refinement (use every data starting with $split in path_folder_refinement as data)
-python $soar_path/soar/post_process/process_repair_for_training.py \
+uv run python $soar_path/soar/post_process/process_repair_for_training.py \
 --base_path $soar_path/ \
 --path_embed_model $path_embed_model/ \
 --split $split \
@@ -186,10 +202,8 @@ python $soar_path/soar/post_process/process_repair_for_training.py \
 
 ```bash
 # Train model (add --load_in_4bit for Q-LoRA)
-
-conda deactivate
-conda activate unsloth_env
-python $soar_path/soar/training/train_unsloth.py \
+# Using UV project management (recommended):
+uv run --extra training python $soar_path/soar/training/train_unsloth.py \
 --base_path $soar_path/ \
 --model_len 30000 \
 --path_base_model $path_base_model \
