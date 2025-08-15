@@ -1,6 +1,12 @@
+# Create directories for models
+mkdir -p hf
+
 # download models (if needed)
-uv run huggingface-cli download Qwen/Qwen2.5-Coder-3B-Instruct --local-dir Qwen2.5-Coder-3B-Instruct --local-dir-use-symlinks True --cache-dir ./hf_cache
-uv run huggingface-cli download nomic-ai/CodeRankEmbed --local-dir CodeRankEmbed --local-dir-use-symlinks True --cache-dir ./hf_cache
+echo "Downloading Qwen2.5-Coder-3B-Instruct model..."
+uv run huggingface-cli download Qwen/Qwen2.5-Coder-3B-Instruct --local-dir hf/Qwen2.5-Coder-3B-Instruct --local-dir-use-symlinks True --cache-dir ./hf_cache
+
+echo "Downloading CodeRankEmbed model..."
+uv run huggingface-cli download nomic-ai/CodeRankEmbed --local-dir hf/CodeRankEmbed --local-dir-use-symlinks True --cache-dir ./hf_cache
 
 
 # init variables (adjust paths for your system)
@@ -23,6 +29,32 @@ if [ "$gen" -eq 0 ]; then
 else
     export path_model="$work_path/hf/trained/$model_id_base/gen-$gen/$model_id"
 fi
+
+# Validate model paths exist
+echo "Checking model paths..."
+if [ ! -d "$path_base_model" ]; then
+    echo "Error: Base model path does not exist: $path_base_model"
+    echo "Please ensure the model was downloaded correctly."
+    exit 1
+fi
+
+if [ ! -d "$path_embed_model" ]; then
+    echo "Error: Embedding model path does not exist: $path_embed_model"
+    echo "Please ensure the CodeRankEmbed model was downloaded correctly."
+    exit 1
+fi
+
+if [ ! -d "$path_model" ]; then
+    echo "Error: Model path does not exist: $path_model"
+    if [ "$gen" -eq 0 ]; then
+        echo "This should be the base model. Check the download."
+    else
+        echo "This should be a trained model from a previous generation."
+    fi
+    exit 1
+fi
+
+echo "All model paths validated successfully!"
 
 
 # Sample phase (default fewshot example from train_solution.pkl but should be from train archive of previous generation)
