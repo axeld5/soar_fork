@@ -1,6 +1,6 @@
 # download models (if needed)
-huggingface-cli download Qwen/Qwen2.5-Coder-3B-Instruct --local-dir Qwen2.5-Coder-3B-Instruct --local-dir-use-symlinks True --cache-dir ./hf_cache
-huggingface-cli download nomic-ai/CodeRankEmbed --local-dir CodeRankEmbed --local-dir-use-symlinks True --cache-dir ./hf_cache
+uv run huggingface-cli download Qwen/Qwen2.5-Coder-3B-Instruct --local-dir Qwen2.5-Coder-3B-Instruct --local-dir-use-symlinks True --cache-dir ./hf_cache
+uv run huggingface-cli download nomic-ai/CodeRankEmbed --local-dir CodeRankEmbed --local-dir-use-symlinks True --cache-dir ./hf_cache
 
 
 # init variables (adjust paths for your system)
