@@ -26,6 +26,7 @@ dependencies = [
     "seaborn",
     "sentence-transformers",
     "einops",
+    "huggingface_hub[cli]",
 ]
 
 [project.urls]
